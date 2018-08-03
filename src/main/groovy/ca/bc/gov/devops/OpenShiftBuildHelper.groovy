@@ -465,8 +465,11 @@ class OpenShiftBuildHelper extends OpenShiftHelper{
                             //item.phase = 'Complete'
                             item['attempts']=(item['attempts']?:0) + 1
                             item.phase = 'Pending'
-                            item.'build-name' = oc(['start-build', object.metadata.name, '-n', object.metadata.namespace, '-o', 'name']).out.toString().trim()
-                            
+                            if ('Binary'.equalsIgnoreCase(it.spec.source?.type)){
+                                item.'build-name' = oc(['start-build', object.metadata.name, '-n', object.metadata.namespace, '-o', 'name', "--from-archive=__${object.metadata.name}.tar"]).out.toString().trim()
+                            }else {
+                                item.'build-name' = oc(['start-build', object.metadata.name, '-n', object.metadata.namespace, '-o', 'name']).out.toString().trim()
+                            }
                             //sleepInSeconds=Math.max(sleepInSeconds, 5)
                             triggered=true
                             
