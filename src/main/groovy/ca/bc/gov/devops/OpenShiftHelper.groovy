@@ -1,5 +1,6 @@
 package ca.bc.gov.devops
 
+import groovy.cli.picocli.CliBuilder
 import groovy.cli.picocli.OptionAccessor
 
 class OpenShiftHelper{
@@ -128,7 +129,7 @@ class OpenShiftHelper{
                         _exec(['tar','-chf',"__${it.metadata.name}.tar", "${it.spec?.source?.contextDir}"])
 
                         //calculate the hash (using git) of the .tar file
-                        String getTreeHash=_exec(['git', 'hash-object', '-t', 'blob', '--no-filters', "__${it.metadata.name}.tar"]).out.toString().trim()
+                        String getTreeHash=_exec(['git', 'hash-object', '-t', 'blob', '--no-filters', "_tmp_${it.metadata.name}.tar"]).out.toString().trim()
                         it.metadata.labels['tree-hash'] = getTreeHash
                     }
                     if (it.spec.triggers && it.spec.triggers.size()>0){
@@ -336,5 +337,21 @@ class OpenShiftHelper{
         config.opt = opt
 
         return config
+    }
+    public static OptionAccessor parseArguments(CliBuilder cli, def args){
+        OptionAccessor basicOpt
+
+        CliBuilder basicCli = new CliBuilder()
+
+        basicCli.with {
+            c(longOpt: 'config', args: 1, argName: 'Pipeline config file', 'Pipeline config file', required: true)
+        }
+
+        basicOpt = basicCli.parse(args)
+
+
+        OptionAccessor opt = cli.parse(args)
+
+        return opt
     }
 }

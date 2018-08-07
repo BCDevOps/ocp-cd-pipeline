@@ -465,8 +465,8 @@ class OpenShiftBuildHelper extends OpenShiftHelper{
                             //item.phase = 'Complete'
                             item['attempts']=(item['attempts']?:0) + 1
                             item.phase = 'Pending'
-                            if ('Binary'.equalsIgnoreCase(it.spec.source?.type)){
-                                item.'build-name' = oc(['start-build', object.metadata.name, '-n', object.metadata.namespace, '-o', 'name', "--from-archive=__${object.metadata.name}.tar"]).out.toString().trim()
+                            if ('Binary'.equalsIgnoreCase(object.spec.source?.type)){
+                                item.'build-name' = oc(['start-build', object.metadata.name, '-n', object.metadata.namespace, '-o', 'name', "--from-archive=_tmp_${object.metadata.name}.tar"]).out.toString().trim()
                             }else {
                                 item.'build-name' = oc(['start-build', object.metadata.name, '-n', object.metadata.namespace, '-o', 'name']).out.toString().trim()
                             }
@@ -533,6 +533,13 @@ class OpenShiftBuildHelper extends OpenShiftHelper{
             //println "Elapsed Seconds: ${duration.getSeconds()} (max = ${config.app.build.timeoutInSeconds})"
             if (duration.getSeconds() > config.app.build.timeoutInSeconds) throw new java.util.concurrent.TimeoutException("Expected to take no more than ${config.app.build.timeoutInSeconds} seconds.")
         } // end while(true)
+
+        //Delete temporary tar files
+        new File('.').traverse(type: groovy.io.FileType.FILES, nameFilter: ~/_tmp_.*/) { it ->
+            println "Deleting ${it.name}"
+            it.delete()
+        }
+
         duration = java.time.Duration.between(startInstant, java.time.Instant.now())
         println "Elapsed Seconds: ${duration.getSeconds()} (max = ${config.app.build.timeoutInSeconds})"
     } //end build
