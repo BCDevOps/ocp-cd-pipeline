@@ -126,7 +126,7 @@ class OpenShiftHelper{
                     }else if ('Binary'.equalsIgnoreCase(it.spec.source?.type)){
                         //create tar file
                         //-h is required for preserving the contents of symlinks - http://www.gnu.org/software/tar/manual/html_node/dereference.html
-                        _exec(['tar','-chf',"__${it.metadata.name}.tar", "${it.spec?.source?.contextDir}"])
+                        _exec(['tar','-chf',"_tmp_${it.metadata.name}.tar", "${it.spec?.source?.contextDir}"])
 
                         //calculate the hash (using git) of the .tar file
                         String getTreeHash=_exec(['git', 'hash-object', '-t', 'blob', '--no-filters', "_tmp_${it.metadata.name}.tar"]).out.toString().trim()
