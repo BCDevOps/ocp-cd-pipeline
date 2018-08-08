@@ -266,11 +266,11 @@ class OpenShiftBuildHelper extends OpenShiftHelper{
 
     private List loadBuildTemplates(Map config){
         Map parameters =[
-                'NAME_SUFFIX':config.app.build.suffix,
-                'ENV_NAME': config.app.build.env.name,
-                'ENV_ID': config.app.build.env.id,
-                'SOURCE_REPOSITORY_URL': config.app.git.uri,
-                'SOURCE_REPOSITORY_REF': config.app.git.ref
+            'NAME_SUFFIX':config.app.build.suffix,
+            'ENV_NAME': config.app.build.env.name,
+            'ENV_ID': config.app.build.env.id,
+            'SOURCE_REPOSITORY_URL': config.app.git.uri,
+            'SOURCE_REPOSITORY_REF': config.app.git.ref
         ]
 
         return loadTemplates(config, config.app.build, parameters)
@@ -455,6 +455,7 @@ class OpenShiftBuildHelper extends OpenShiftHelper{
                         //ocApply([object], ['-n', config.app.build.namespace])
 
                         if (images.size() == 0){
+                            println "Build Hash (Source):\n${buildChecksum.source}"
                             addBuildConfigEnv(object, [name:'_BUILD_HASH', value:buildHash])
                             object.metadata.annotations['build-hash'] = buildChecksum.checksum
                             object.metadata.annotations['build-hash-source'] = buildChecksum.source
@@ -466,7 +467,12 @@ class OpenShiftBuildHelper extends OpenShiftHelper{
                             item['attempts']=(item['attempts']?:0) + 1
                             item.phase = 'Pending'
                             if ('Binary'.equalsIgnoreCase(object.spec.source?.type)){
-                                item.'build-name' = oc(['start-build', object.metadata.name, '-n', object.metadata.namespace, '-o', 'name', "--from-archive=_tmp_${object.metadata.name}.tar"]).out.toString().trim()
+                                File tempTarFile= new File("_tmp_${object.metadata.name}.tar")
+                                //create a temporary tar file
+                                _exec(['tar','-chf',"${tempTarFile.path}", "${object.spec?.source?.contextDir}"])
+                                item.'build-name' = oc(['start-build', object.metadata.name, '-n', object.metadata.namespace, '-o', 'name', "--from-archive=${tempTarFile.path}"]).out.toString().trim()
+                                //delete temporary tar file
+                                tempTarFile.delete()
                             }else {
                                 item.'build-name' = oc(['start-build', object.metadata.name, '-n', object.metadata.namespace, '-o', 'name']).out.toString().trim()
                             }

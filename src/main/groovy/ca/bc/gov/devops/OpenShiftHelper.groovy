@@ -124,13 +124,32 @@ class OpenShiftHelper{
                         String getTreeHash=_exec(['git', 'ls-tree', 'HEAD', '--', "${it.spec?.source?.contextDir}"]).out.toString().trim().tokenize()[2]
                         it.metadata.labels['tree-hash'] = getTreeHash
                     }else if ('Binary'.equalsIgnoreCase(it.spec.source?.type)){
+                        def files=[:]
+                        new File("${it.spec?.source?.contextDir}").traverse(type: groovy.io.FileType.FILES){ file ->
+                            files[file.getPath()]=[:]
+                        }
+                        //sort map by key
+                        files = files.sort()
+
+                        files.each { String filePath, Map item ->
+                            String fileHash=_exec(['git', 'hash-object', '-t', 'blob', '--no-filters', "${filePath}"]).out.toString().trim()
+                            item['hash'] = fileHash
+                        }
+
+                        String hashSource=groovy.json.JsonOutput.toJson(files)
+                        println "source:${hashSource}"
+
                         //create tar file
+                        //find -L module1 -type f -exec sh -c "echo '{}'; git hash-object -t blob --no-filters {}" \;
+                        //find -L module1 -type f -print0 | sort -z | xargs -0 git hash-object -t blob --no-filters
                         //-h is required for preserving the contents of symlinks - http://www.gnu.org/software/tar/manual/html_node/dereference.html
-                        _exec(['tar','-chf',"_tmp_${it.metadata.name}.tar", "${it.spec?.source?.contextDir}"])
+                        //_exec(['tar','-chf',"_tmp_${it.metadata.name}.tar", "${it.spec?.source?.contextDir}"])
 
                         //calculate the hash (using git) of the .tar file
-                        String getTreeHash=_exec(['git', 'hash-object', '-t', 'blob', '--no-filters', "_tmp_${it.metadata.name}.tar"]).out.toString().trim()
-                        it.metadata.labels['tree-hash'] = getTreeHash
+                        //String getTreeHash=_exec(['git', 'hash-object', '-t', 'blob', '--no-filters', "_tmp_${it.metadata.name}.tar"]).out.toString().trim()
+                        String checksum='sha256:'+calculateChecksum(hashSource, 'SHA-256')
+                        println "checksum:${checksum}"
+                        it.metadata.labels['tree-hash'] = checksum
                     }
                     if (it.spec.triggers && it.spec.triggers.size()>0){
                         println "WARN: ${key(it)}.spec.triggers are being removed and will be managed by this build script"
