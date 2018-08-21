@@ -1,3 +1,5 @@
+package example
+
 import ca.bc.gov.devops.OpenShiftHelper
 import groovy.transform.BaseScript
 import ca.bc.gov.devops.OpenShiftCleanupHelper

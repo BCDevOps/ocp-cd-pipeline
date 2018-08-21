@@ -1,7 +1,9 @@
-import groovy.transform.BaseScript
-import ca.bc.gov.devops.OpenShiftDeploymentHelper
+package example
 
-@BaseScript ca.bc.gov.devops.BasicDeploy _super
+import groovy.transform.BaseScript
+import ca.bc.gov.devops.OpenShiftBuildHelper
+
+@BaseScript ca.bc.gov.devops.BasicBuild _super
 
 @groovy.transform.SourceURI URI sourceURI
 

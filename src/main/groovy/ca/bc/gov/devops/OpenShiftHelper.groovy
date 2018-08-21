@@ -147,7 +147,7 @@ class OpenShiftHelper{
 
                         //calculate the hash (using git) of the .tar file
                         //String getTreeHash=_exec(['git', 'hash-object', '-t', 'blob', '--no-filters', "_tmp_${it.metadata.name}.tar"]).out.toString().trim()
-                        String checksum='sha256:'+calculateChecksum(hashSource, 'SHA-256')
+                        String checksum=calculateChecksum(hashSource, 'SHA-256')
                         println "checksum:${checksum}"
                         it.metadata.labels['tree-hash'] = checksum
                     }
@@ -167,6 +167,7 @@ class OpenShiftHelper{
                             strategyOptions.from.namespace = strategyOptions.from.namespace ?: templateConfig.namespace
                         }
                     }
+                    it.metadata.labels.remove('tree-hash')
                     //println groovy.json.JsonOutput.toJson(it.spec.triggers)
                 }else if ('ImageStream'.equalsIgnoreCase(it.kind)){
                     if (getVerboseLevel() >= 4) println "${it.kind}/${it.metadata.name}"

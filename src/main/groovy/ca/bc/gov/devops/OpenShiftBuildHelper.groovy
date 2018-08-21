@@ -176,8 +176,19 @@ class OpenShiftBuildHelper extends OpenShiftHelper{
         Map record = ['images':[]]
         Map fromImageStreamTag = (bc.spec?.strategy?.dockerStrategy?.from)?:(bc.spec?.strategy?.sourceStrategy?.from)
 
-        record['buildConfig']=bc.metadata.labels['hash']
-        record['source']=bc.metadata.labels['tree-hash']
+        Map strategyOptions=bc.spec.strategy.sourceStrategy?:bc.spec.strategy.dockerStrategy
+        String sourceHash = null
+
+        strategyOptions.env.each { Map env ->
+            if ('OPENSHIFT_BUILD_TREE_HASH' == env.name){
+                record['source']=env.value
+            }else if ('OPENSHIFT_BUILD_CONFIG_HASH' == env.name){
+                record['buildConfig']=env.value
+            }
+        }
+
+        //record['buildConfig']=bc.metadata.labels['hash']
+        //record['source']=bc.metadata.labels['tree-hash']
         record['images']<<getImageStreamTag(fromImageStreamTag)?.image?.metadata?.name
 
         //Handles chained Builds
