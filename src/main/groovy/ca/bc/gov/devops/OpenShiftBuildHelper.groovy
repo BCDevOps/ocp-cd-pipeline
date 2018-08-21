@@ -501,7 +501,7 @@ class OpenShiftBuildHelper extends OpenShiftHelper{
                             //Reuse Image from a previous build
                         }else{
                             //hell broke loose!
-                            throw new RuntimeException("Hell broke loose! ")
+                            throw new RuntimeException("More than 1 image with the same build hash found for ${object.metadata.name} - ${images.values().collect({ it.name }).join(',')}")
                         }
                     }else if ( 'Running' == item.phase  || 'Pending' == item.phase){
                         Map build = ocGet(["${item['build-name']}", '-n', object.metadata.namespace])
