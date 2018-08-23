@@ -38,10 +38,34 @@ class OpenShiftDeploymentHelper extends OpenShiftHelper{
                 if ((object.kind == 'Secret' || object.kind == 'ConfigMap') &&  asCopyOf!=null){
                     Map sourceObject = ocGet([object.kind, asCopyOf,'--ignore-not-found=true',  '-n', object.metadata.namespace])
                     if (sourceObject ==  null){
-                        errors.add("'${object.kind}/${asCopyOf}' was not found in '${object.metadata.namespace}'")
+                        errors.add("Error processing '${key(object)}': '${object.kind}/${asCopyOf}' was not found in '${object.metadata.namespace}'")
                     }else{
-                        object.remove('stringData')
+                        //object.remove('stringData')
+                        object['stringData'] =[:]
                         object.data=sourceObject.data
+                        if (object.data.containsKey('metadata.name')){
+                            object.data.remove('metadata.name')
+                            object['stringData']['metadata.name']= object.metadata.name
+                        }
+
+                        if (object.metadata.annotations.containsKey('as-copy-of/preserve')){
+                            Map currentObject = ocGet([object.kind, object.metadata.name,'--ignore-not-found=true',  '-n', object.metadata.namespace])
+                            if (currentObject !=null){
+
+                                for (String field:object.metadata.annotations['as-copy-of/preserve'].tokenize(',')){
+                                    if (field == "*"){
+                                        currentObject.data.each {String key, String value ->
+                                            println "Preserving ${key(object)}.data['${key}']"
+                                            object.data[key] = value
+                                        }
+                                    }else if (currentObject.data.containsKey(field)){
+                                        println "Preserving ${key(object)}.data['${field}']"
+                                        object.data[field] = currentObject.data[field]
+                                    }
+                                }
+                            }
+                        }
+
                     }
                 }else if (object.kind == 'ImageStream'){
                     //retrieve image from the tools project

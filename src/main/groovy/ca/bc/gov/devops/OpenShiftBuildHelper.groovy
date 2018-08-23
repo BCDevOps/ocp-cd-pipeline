@@ -466,7 +466,7 @@ class OpenShiftBuildHelper extends OpenShiftHelper{
                         //ocApply([object], ['-n', config.app.build.namespace])
 
                         if (images.size() == 0){
-                            println "Build Hash (Source):\n${buildChecksum.source}"
+                            //println "Build Hash (Source):\n${buildChecksum.source}"
                             addBuildConfigEnv(object, [name:'_BUILD_HASH', value:buildHash])
                             object.metadata.annotations['build-hash'] = buildChecksum.checksum
                             object.metadata.annotations['build-hash-source'] = buildChecksum.source
