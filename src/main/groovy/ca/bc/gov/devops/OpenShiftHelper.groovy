@@ -342,7 +342,7 @@ class OpenShiftHelper{
         return config
     }
     public static Map loadDeploymentConfig(OptionAccessor opt){
-        println "Loading configuration file for '${opt.e}' ${opt.'pr'}"
+        //println "Loading configuration file for '${opt.e}' ${opt.'pr'}"
         def configFile = new File(opt.c)
 
         def varsConfigSlurper = new ConfigSlurper(opt.e)

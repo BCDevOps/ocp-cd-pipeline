@@ -40,10 +40,11 @@ class OpenShiftDeploymentHelper extends OpenShiftHelper{
                     if (sourceObject ==  null){
                         errors.add("Error processing '${key(object)}': '${object.kind}/${asCopyOf}' was not found in '${object.metadata.namespace}'")
                     }else{
+                        Map stringData = object['stringData']
                         //object.remove('stringData')
                         object['stringData'] =[:]
                         object.data=sourceObject.data
-                        if (object.data.containsKey('metadata.name')){
+                        if (stringData.containsKey('metadata.name') || object.data.containsKey('metadata.name')){
                             object.data.remove('metadata.name')
                             object['stringData']['metadata.name']= object.metadata.name
                         }

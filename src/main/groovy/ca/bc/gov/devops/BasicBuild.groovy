@@ -12,19 +12,22 @@ abstract class BasicBuild extends Script {
     CliBuilder cli
     OptionAccessor opt
 
+    static public CliBuilder withOptions(CliBuilder _cli){
+        _cli.with {
+            h(longOpt: 'help', 'Show usage information')
+            n(longOpt: 'name', args: 1, argName: 'Name', 'Name', required: false)
+            c(longOpt: 'config', args: 1, argName: 'Pipeline config file', 'Pipeline config file', required: true)
+            _(longOpt: 'pr', args: 1, argName: 'Pull Request Number', 'GitHub Pull Request #', required: true)
+        }
+        return _cli
+    }
+
     def runScript(URI scriptSourceUri) {
         File scriptSourceFile = Paths.get(scriptSourceUri).toFile()
 
         cli = new CliBuilder(usage: "groovy ${scriptSourceFile.getName()} --pr=<pull request#>")
 
-        cli.with {
-            h(longOpt: 'help', 'Show usage information')
-            c(longOpt: 'config', args: 1, argName: 'Pipeline config file', 'Pipeline config file', required: true)
-            _(longOpt: 'pr', args: 1, argName: 'Pull Request Number', 'GitHub Pull Request #', required: true)
-        }
-
-
-        opt = cli.parse(args)
+        opt = withOptions(cli).parse(args)
 
 
         if (opt == null) {
