@@ -146,19 +146,16 @@ class OpenShiftDeploymentHelper extends OpenShiftHelper{
             while (iterator.hasNext()) {
                 Map object = iterator.next();
                 Map dc = ocGet([object.kind, "${object.metadata.name}",  '-n', object.metadata.namespace])
-                println "${key(dc)} - desired:${dc?.status?.replicas}  ready:${dc?.status?.readyReplicas} available:${dc?.status?.availableReplicas}"
+                String rcName = "${object.metadata.name}-${dc.status.latestVersion}"
+
+                if (!waitForPodsToComplete(['pods', '-l', "openshift.io/deployer-pod-for.name=${rcName}", "-n",dc.metadata.namespace])){
+                    throw new RuntimeException("BuildConfig/${dc.metadata.name} has failed!")
+                }
+                println "${key(dc)} - version:${dc.status.latestVersion}  desired:${dc?.status?.replicas}  ready:${dc?.status?.readyReplicas} available:${dc?.status?.availableReplicas}"
                 if ((dc?.status?.replicas == dc?.status?.readyReplicas &&  dc?.status?.replicas == dc?.status?.availableReplicas)) {
                     iterator.remove()
                 }
             }
-            int sleepMin =1
-            int sleepCap = 5
-            int sleepBase = 1
-            int sleepBackoff = 4
-            int sleepTime=Math.max(sleepMin, Math.min(sleepCap, sleepBase * ((Math.pow(2, attempt / sleepBackoff))-1)))* 1000
-
-            println "Sleeping for ${sleepTime}ms"
-            Thread.sleep(sleepTime)
             attempt++
         }
 
