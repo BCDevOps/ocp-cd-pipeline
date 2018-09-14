@@ -20,3 +20,4 @@ cd "$SAVED" >/dev/null
 
 echo "PRG=${PRG}"
 echo "PRG_DIR=${PRG_DIR}"
+echo "args=$@"
