@@ -1,13 +1,13 @@
 package example
 
-import ca.bc.gov.devops.OpenShiftHelper
 import groovy.transform.BaseScript
-import ca.bc.gov.devops.OpenShiftCleanupHelper
+import ca.bc.gov.devops.OpenShiftBuildHelper
 
-@BaseScript ca.bc.gov.devops.Base _super
+@BaseScript ca.bc.gov.devops.BasicClean _super
 
-def config = OpenShiftHelper.loadDeploymentConfig()
+@groovy.transform.SourceURI URI sourceURI
 
-new OpenShiftCleanupHelper(config).cleanup()
+//runScript(sourceURI)
 
+println 'Work in progress!!'
 println 'Done!!'

@@ -16,6 +16,8 @@ abstract class BasicDeploy extends Script {
             n(longOpt: 'name', args: 1, argName: 'Name', 'Name', required: false)
             c(longOpt: 'config', args: 1, argName: 'Pipeline config file', 'Pipeline config file', required: true)
             e(longOpt: 'env', args: 1, argName: 'Target environment name', 'Target environment name', required: true)
+            _(longOpt: 'deployment-name', args: 1, argName: 'Deployment Name', 'Deployment Name', required: false)
+            _(longOpt: 'build-name', args: 1, argName: 'Deployment Name', 'Deployment Name', required: false)
             _(longOpt: 'pr', args: 1, argName: 'Pull Request Number', 'GitHub Pull Request #', required: true)
         }
         return _cli
@@ -40,9 +42,9 @@ abstract class BasicDeploy extends Script {
             return 0
         }
 
-
         def config = OpenShiftHelper.loadDeploymentConfig(opt)
-
+        //println "${config}"
+        //System.exit(1)
         //println config
         //TODO:Verify access to the project/namespace
         //system:serviceaccount:empr-mds-tools:jenkins

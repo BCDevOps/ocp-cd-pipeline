@@ -99,12 +99,15 @@ class OpenShiftHelper{
             Map objects=new groovy.json.JsonSlurper().parseText(ocRet.out.toString())
 
             objects.items.each {
+                println "Loading ${key(it)}"
+
                 it.metadata.labels=it.metadata.labels?:[:]
                 it.metadata.annotations=it.metadata.annotations?:[:]
                 //normalize to explicit namespace references (it makes things easier)
                 it.metadata.namespace = it.metadata.namespace?:templateConfig.namespace
 
                 if ('BuildConfig'.equalsIgnoreCase(it.kind)){
+                    if (!it.spec.completionDeadlineSeconds) println "WARN: Please set ${key(it)}.spec.completionDeadlineSeconds"
                     if (!it.spec.completionDeadlineSeconds) println "WARN: Please set ${key(it)}.spec.completionDeadlineSeconds"
 
                     if (getVerboseLevel() >= 4) println "${it.kind}/${it.metadata.name} - ${it.spec.source.contextDir}"
@@ -119,6 +122,7 @@ class OpenShiftHelper{
                             image.from.namespace=image.from.namespace?:templateConfig.namespace
                         }
                     }
+
 
                     if (gitRemoteUri.equalsIgnoreCase(it.spec.source?.git?.uri) && it.spec?.source?.contextDir != null){
                         String getTreeHash=_exec(['git', 'ls-tree', 'HEAD', '--', "${it.spec?.source?.contextDir}"]).out.toString().trim().tokenize()[2]
@@ -176,7 +180,11 @@ class OpenShiftHelper{
                     if (getVerboseLevel() >= 4) println "${it.kind}/${it.metadata.name}"
                     if (!it.spec.jobTemplate.spec.activeDeadlineSeconds) println "WARN: Please set ${key(it)}.spec.jobTemplate.spec.activeDeadlineSeconds"
                     if (!it.spec.jobTemplate.spec.template.spec.activeDeadlineSeconds) println "WARN: Please set ${key(it)}.spec.jobTemplate.spec.template.spec.activeDeadlineSeconds"
-
+                }else if ('DeploymentConfig'.equalsIgnoreCase(it.kind)){
+                    //BestPractice
+                    it.spec.template.spec.containers.each { container ->
+                        if (container.resources.limits.cpu && !container.resources.requests.cpu) println "WARN: Please set ${key(it)}.spec.containers[].resources.requests.cpu"
+                    }
                 }else{
                     //openshift.io/build-config.name
                     if (getVerboseLevel() >= 4) println "${it.kind}/${it.metadata.name}"
@@ -354,7 +362,7 @@ class OpenShiftHelper{
         configSlurper.setBinding(['opt': opt, 'vars': varsConfig.vars])
 
         def config = configSlurper.parse(new File(opt.c).toURI().toURL())
-        config.opt = opt
+        //config.opt = opt
 
         return config
     }

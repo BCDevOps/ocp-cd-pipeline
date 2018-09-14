@@ -17,15 +17,17 @@ abstract class BasicBuild extends Script {
             h(longOpt: 'help', 'Show usage information')
             n(longOpt: 'name', args: 1, argName: 'Name', 'Name', required: false)
             c(longOpt: 'config', args: 1, argName: 'Pipeline config file', 'Pipeline config file', required: true)
+            _(longOpt: 'build-name', args: 1, argName: 'Build Name', 'Build Name', required: false)
             _(longOpt: 'pr', args: 1, argName: 'Pull Request Number', 'GitHub Pull Request #', required: true)
         }
         return _cli
     }
 
     def runScript(URI scriptSourceUri) {
-        File scriptSourceFile = Paths.get(scriptSourceUri).toFile()
+        //println "scriptSourceUri:${scriptSourceUri}"
+        //File scriptSourceFile = Paths.get(scriptSourceUri).toFile()
 
-        cli = new CliBuilder(usage: "groovy ${scriptSourceFile.getName()} --pr=<pull request#>")
+        cli = new CliBuilder(usage: "groovy ${scriptSourceUri} --pr=<pull request#>")
 
         opt = withOptions(cli).parse(args)
 

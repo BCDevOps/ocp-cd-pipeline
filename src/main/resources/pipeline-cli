@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+
 #set -x
 # Attempt to set APP_HOME
 # Resolve links: $0 may be a link
@@ -18,6 +19,125 @@ cd "`dirname \"$PRG\"`/" >/dev/null
 PRG_DIR="`pwd -P`"
 cd "$SAVED" >/dev/null
 
-echo "PRG=${PRG}"
-echo "PRG_DIR=${PRG_DIR}"
-echo "args=$@"
+info () {
+    echo "$*"
+}
+
+warn () {
+    echo "$*"
+}
+
+die () {
+    echo
+    echo "$*"
+    echo
+    exit 1
+}
+
+# OS specific support (must be 'true' or 'false').
+cygwin=false
+msys=false
+darwin=false
+nonstop=false
+case "`uname`" in
+  CYGWIN* )
+    cygwin=true
+    ;;
+  Darwin* )
+    darwin=true
+    ;;
+  MINGW* )
+    msys=true
+    ;;
+  NONSTOP* )
+    nonstop=true
+    ;;
+esac
+
+if [ ! -n "$JAVACMD" ] ; then
+    if [ -n "$__JAVA_HOME" ] ; then
+        if [ -x "$JAVA_HOME/jre/sh/java" ] ; then
+            # IBM's JDK on AIX uses strange locations for the executables
+            JAVACMD="$JAVA_HOME/jre/sh/java"
+        else
+            JAVACMD="$JAVA_HOME/bin/java"
+        fi
+        if [ ! -x "$JAVACMD" ] ; then
+            die "ERROR: JAVA_HOME is set to an invalid directory: $JAVA_HOME
+    Please set the JAVA_HOME variable in your environment to match the
+    location of your Java installation."
+        fi
+    else
+        JAVA_VERSION='10.0.2'
+        JDK_DIR="/tmp/~jdk-${JAVA_VERSION}"
+
+        if [ ! -d "${JDK_DIR}" ] ; then
+            #echo "cygwin:${cygwin}, darwin:${darwin}, msys:${msys}, nonstop:${nonstop}"
+            if $darwin; then
+                JDK_DOWNLOAD_URL='https://download.java.net/java/GA/jdk10/10.0.2/19aef61b38124481863b1413dce1855f/13/openjdk-10.0.2_osx-x64_bin.tar.gz'
+            else
+                JDK_DOWNLOAD_URL='https://download.java.net/java/GA/jdk10/10.0.2/19aef61b38124481863b1413dce1855f/13/openjdk-10.0.2_linux-x64_bin.tar.gz'
+            fi
+            JDK_DOWNLOAD_URL_SHA256="${JDK_DOWNLOAD_URL}.sha256"
+            JDK_DOWNLOAD_FILE="${JDK_DIR}.tar.gz"
+            JDK_DOWNLOAD_FILE_SHA256="${JDK_DOWNLOAD_FILE}.sha256"
+
+            curl -sL -o "${JDK_DOWNLOAD_FILE_SHA256}" "${JDK_DOWNLOAD_URL_SHA256}"
+            echo "`cat "${JDK_DOWNLOAD_FILE_SHA256}"`  ${JDK_DOWNLOAD_FILE}" > "${JDK_DOWNLOAD_FILE}.checksum"
+
+            if $darwin; then
+                shasum -a 256 -c --status "${JDK_DOWNLOAD_FILE}.checksum" > /dev/null || ( rm -f "${JDK_DOWNLOAD_FILE}"; rm -rf "${JDK_DIR}")
+            else
+                sha256sum -c --status "${JDK_DOWNLOAD_FILE}.checksum" > /dev/null || ( rm -f "${JDK_DOWNLOAD_FILE}"; rm -rf "${JDK_DIR}")
+            fi
+
+            if [ ! -f "${JDK_DOWNLOAD_FILE}" ] ; then
+                info "Downloading JDK - ${JDK_DOWNLOAD_URL}"
+                curl -sL -o "${JDK_DOWNLOAD_FILE}" "${JDK_DOWNLOAD_URL}"
+            fi
+
+            info "Extracting JDK"
+            mkdir -p "${JDK_DIR}"
+            tar -xzf "${JDK_DOWNLOAD_FILE}" -C "${JDK_DIR}"
+        fi
+        JAVACMD="`find "${JDK_DIR}" -type f -name 'java'`"
+        #for java 10
+        export JAVA_OPTS="${JAVA_OPTS} --add-modules java.xml.bind --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.invoke=ALL-UNNAMED --show-version"
+    fi
+fi
+export JAVACMD
+echo "JAVACMD=${JAVACMD}"
+
+
+GROOVY_DOWNLOAD_URL='https://dl.bintray.com/groovy/maven/apache-groovy-binary-2.5.2.zip'
+GROOVY_DOWNLOAD_FILE="/tmp/~`basename "$GROOVY_DOWNLOAD_URL"`"
+
+GROOVY_DIR="/tmp/.groovy"
+if [ ! -d "${GROOVY_DIR}" ] ; then
+    if [ ! -f "${GROOVY_DOWNLOAD_FILE}" ] ; then
+        info "Downloading Groovy"
+        curl -sL -o "${GROOVY_DOWNLOAD_FILE}" "${GROOVY_DOWNLOAD_URL}"
+    fi
+    info "Extracting Groovy"
+    mkdir -p "${GROOVY_DIR}"
+    unzip -oq "${GROOVY_DOWNLOAD_FILE}" -d "${GROOVY_DIR}"
+fi
+#find "${GROOVY_DIR}/" -type f -name 'groovy' -perm +111
+GROOVYCMD="${GROOVY_DIR}/groovy-2.5.2/bin/groovy"
+
+echo "GROOVYCMD=${GROOVYCMD}"
+
+OCP_PIPELINE_VERSION='0.0.4'
+OCP_PIPELINE_DOWNLOAD_URL="https://dl.bintray.com/cvarjao/maven/ca/bc/gov/devops/cd/pipeline/ocp-pipeline/${OCP_PIPELINE_VERSION}/ocp-pipeline-${OCP_PIPELINE_VERSION}.jar"
+OCP_PIPELINE_DOWNLOAD_FILE="/tmp/ocp-pipeline-${OCP_PIPELINE_VERSION}.jar"
+OCP_PIPELINE_DIR="${OCP_PIPELINE_DIR:-/tmp/ocp-pipeline/${OCP_PIPELINE_VERSION}}"
+
+if [ ! -d "${OCP_PIPELINE_DIR}" ] ; then
+    if [ ! -f "${OCP_PIPELINE_DOWNLOAD_FILE}" ] ; then
+        info "Downloading ocp-pipeline ${OCP_PIPELINE_VERSION}"
+        curl -sSf "${OCP_PIPELINE_DOWNLOAD_URL}" -o "${OCP_PIPELINE_DOWNLOAD_FILE}"
+    fi
+    info "Extracting ocp-pipeline ${OCP_PIPELINE_VERSION}"
+    mkdir -p "${OCP_PIPELINE_DIR}"
+    unzip -oq "${OCP_PIPELINE_DOWNLOAD_FILE}" -d "${OCP_PIPELINE_DIR}"
+fi

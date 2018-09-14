@@ -31,7 +31,9 @@ class OpenShiftDeploymentHelper extends OpenShiftHelper{
             println "Preparing ${template.file}"
             template.objects.each { Map object ->
                 println "Preparing ${key(object)}  (${object.metadata.namespace})"
-                applyCommonTemplateConfig(config, deploymentConfig, object)
+                if (object?.labels?.shared != 'true') {
+                    applyCommonTemplateConfig(config, deploymentConfig, object)
+                }
 
                 String asCopyOf = object.metadata.annotations['as-copy-of']
 
