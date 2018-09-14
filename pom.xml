@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>ca.bc.gov.devops.cd.pipeline</groupId>
     <artifactId>ocp-pipeline</artifactId>
-    <version>0.0.3</version>
+    <version>0.0.4</version>
     <packaging>jar</packaging>
     <name>Openshift Pipeline Helper Classes</name>
 
@@ -28,6 +28,7 @@
     <build>
         <resources>
             <resource><directory>src/main/groovy</directory></resource>
+            <resource><directory>src/main/resources</directory></resource>
         </resources>
         <pluginManagement>
             <plugins>
@@ -144,6 +145,7 @@
         <repository>
             <id>bintray-install</id>
             <url>https://api.bintray.com/maven/${bintray.subject}/${bintray.repo}/${bintray.package}/;publish=1;override=1</url>
+            <!-- <url>https://api.bintray.com/maven/${bintray.subject}/${bintray.repo}/${bintray.package}/;publish=1;override=1</url> -->
         </repository>
     </distributionManagement>
 </project>
