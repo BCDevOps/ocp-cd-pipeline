@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+#set -x
+# Attempt to set APP_HOME
+# Resolve links: $0 may be a link
+PRG="$0"
+# Need this for relative symlinks.
+while [ -h "$PRG" ] ; do
+    ls=`ls -ld "$PRG"`
+    link=`expr "$ls" : '.*-> \(.*\)$'`
+    if expr "$link" : '/.*' > /dev/null; then
+        PRG="$link"
+    else
+        PRG=`dirname "$PRG"`"/$link"
+    fi
+done
+SAVED="`pwd`"
+cd "`dirname \"$PRG\"`/" >/dev/null
+PRG_DIR="`pwd -P`"
+cd "$SAVED" >/dev/null
+
+echo "PRG=${PRG}"
+echo "PRG_DIR=${PRG_DIR}"
