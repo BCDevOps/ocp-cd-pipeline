@@ -1,24 +1,6 @@
 #!/usr/bin/env bash
 
-#set -x
-# Attempt to set APP_HOME
-# Resolve links: $0 may be a link
-PRG="$0"
-# Need this for relative symlinks.
-while [ -h "$PRG" ] ; do
-    ls=`ls -ld "$PRG"`
-    link=`expr "$ls" : '.*-> \(.*\)$'`
-    if expr "$link" : '/.*' > /dev/null; then
-        PRG="$link"
-    else
-        PRG=`dirname "$PRG"`"/$link"
-    fi
-done
-SAVED="`pwd`"
-cd "`dirname \"$PRG\"`/" >/dev/null
-PRG_DIR="`pwd -P`"
-cd "$SAVED" >/dev/null
-
+#BEGIN functions
 info () {
     echo "$*"
 }
@@ -33,6 +15,9 @@ die () {
     echo
     exit 1
 }
+#END functions
+
+WORK_DIR="`pwd -P`"
 
 # OS specific support (must be 'true' or 'false').
 cygwin=false
@@ -53,6 +38,7 @@ case "`uname`" in
     nonstop=true
     ;;
 esac
+
 
 if [ ! -n "$JAVACMD" ] ; then
     if [ -n "$__JAVA_HOME" ] ; then
@@ -102,11 +88,11 @@ if [ ! -n "$JAVACMD" ] ; then
         fi
         JAVACMD="`find "${JDK_DIR}" -type f -name 'java'`"
         #for java 10
-        export JAVA_OPTS="${JAVA_OPTS} --add-modules java.xml.bind --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.invoke=ALL-UNNAMED --show-version"
+        export JAVA_OPTS="${JAVA_OPTS} --show-version --add-modules java.xml.bind --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.invoke=ALL-UNNAMED"
     fi
 fi
 export JAVACMD
-echo "JAVACMD=${JAVACMD}"
+#echo "JAVACMD=${JAVACMD}"
 
 
 GROOVY_DOWNLOAD_URL='https://dl.bintray.com/groovy/maven/apache-groovy-binary-2.5.2.zip'
@@ -125,19 +111,31 @@ fi
 #find "${GROOVY_DIR}/" -type f -name 'groovy' -perm +111
 GROOVYCMD="${GROOVY_DIR}/groovy-2.5.2/bin/groovy"
 
-echo "GROOVYCMD=${GROOVYCMD}"
+#echo "GROOVYCMD=${GROOVYCMD}"
 
 OCP_PIPELINE_VERSION="${OCP_PIPELINE_VERSION:-0.0.4}"
 OCP_PIPELINE_DOWNLOAD_URL="https://github.com/BCDevOps/ocp-cd-pipeline/archive/v${OCP_PIPELINE_VERSION}.zip"
-OCP_PIPELINE_DOWNLOAD_FILE="/tmp/ocp-pipeline-${OCP_PIPELINE_VERSION}.jar"
+OCP_PIPELINE_DOWNLOAD_FILE="/tmp/ocp-pipeline-${OCP_PIPELINE_VERSION}.zip"
 OCP_PIPELINE_DIR="${OCP_PIPELINE_DIR:-/tmp/ocp-pipeline/${OCP_PIPELINE_VERSION}}"
 
 if [ ! -d "${OCP_PIPELINE_DIR}" ] ; then
     if [ ! -f "${OCP_PIPELINE_DOWNLOAD_FILE}" ] ; then
         info "Downloading ocp-pipeline ${OCP_PIPELINE_VERSION}"
-        curl -sSf "${OCP_PIPELINE_DOWNLOAD_URL}" -o "${OCP_PIPELINE_DOWNLOAD_FILE}"
+        curl -sSfL "${OCP_PIPELINE_DOWNLOAD_URL}" -o "${OCP_PIPELINE_DOWNLOAD_FILE}"
     fi
     info "Extracting ocp-pipeline ${OCP_PIPELINE_VERSION}"
     mkdir -p "${OCP_PIPELINE_DIR}"
     unzip -oq "${OCP_PIPELINE_DOWNLOAD_FILE}" -d "${OCP_PIPELINE_DIR}"
 fi
+
+
+OCP_PIPELINE_LIB_DIR="${OCP_PIPELINE_DIR}/ocp-cd-pipeline-${OCP_PIPELINE_VERSION}/src/main/groovy"
+
+#echo "OCP_PIPELINE_VERSION=${OCP_PIPELINE_VERSION}"
+#echo "OCP_PIPELINE_DIR=${OCP_PIPELINE_DIR}"
+
+PIPELINE_STAGE="$1"; shift
+
+PIPELINE_STAGE_SCRIPT="${OCP_PIPELINE_LIB_DIR}/example/${PIPELINE_STAGE}.groovy"
+
+exec "${GROOVYCMD}" -cp "${OCP_PIPELINE_LIB_DIR}" "${PIPELINE_STAGE_SCRIPT}" "$@"
