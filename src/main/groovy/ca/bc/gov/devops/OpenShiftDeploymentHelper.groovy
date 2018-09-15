@@ -79,7 +79,7 @@ class OpenShiftDeploymentHelper extends OpenShiftHelper{
                     if (deployImageStreamTag == null){
                         //Creating ImageStreamTag
                         oc(['tag', "${config.app.build.namespace}/${buildImageStreamTagName}", "${object.metadata.namespace}/${deploymageStreamTagName}", '-n', object.metadata.namespace])
-                    }else if (buildImageStreamTag.image.metadata.name !=  deployImageStreamTag.image.metadata.name ){
+                    }else if (buildImageStreamTag!=null && buildImageStreamTag.image.metadata.name !=  deployImageStreamTag.image.metadata.name ){
                         //Updating ImageStreamTag
                         oc(['tag', "${config.app.build.namespace}/${buildImageStreamTagName}", "${object.metadata.namespace}/${deploymageStreamTagName}", '-n', object.metadata.namespace])
                     }

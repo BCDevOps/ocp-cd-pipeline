@@ -1,6 +1,6 @@
 # ocp-cd-pipeline
 
-This is a groovy library (provided as jar file) for helping orchestrating the creation of OpenShift objects required for building and deploying applications.
+This is a groovy library/utility (provided as jar file) for helping orchestrating the creation of OpenShift objects required for building and deploying applications.
 
 # Motivation
 
@@ -10,7 +10,7 @@ The [oc](https://github.com/openshift/origin/blob/master/docs/cli.md) command-li
 
 Developers are encouraged to create [templates](https://docs.okd.io/latest/dev_guide/templates.html) and use the template to create/update objects by using the oc command-line. However, we have observed that those templates are not kept up-to-date, and it is not consistently and continuously tested.
 
-In the spirit of [Infrastructue as Code](https://en.wikipedia.org/wiki/Infrastructure_as_Code), and [Continuous Delivery](https://en.wikipedia.org/wiki/Continuous_delivery) Practices, we wanted to (1) test the template as often and as thoroughly as possible,  (2) be able to spin up a new environment as quick and easy as possible, and (3) doing so consistently as part of a [deployment pipeline](https://en.wikipedia.org/wiki/Continuous_delivery#Deployment_pipeline).
+In the spirit of [Infrastructue as Code](https://en.wikipedia.org/wiki/Infrastructure_as_Code), and [Continuous Delivery](https://en.wikipedia.org/wiki/Continuous_delivery) Practices, we wanted to (1) test the template as often and as thoroughly as possible,  (2) be able to spin up a new environment as quickly and easily as possible, and (3) doing so consistently as part of a [deployment pipeline](https://en.wikipedia.org/wiki/Continuous_delivery#Deployment_pipeline).
 
 
 ## Bye Jenkins Shared Library
@@ -54,7 +54,13 @@ Create a config file using Groovy [ConfigSlurper](http://docs.groovy-lang.org/la
 
 ## Build
 ```
-groovy -cp src/main/groovy/ src/main/groovy/example/build.groovy --config=
+# MY_APP_DIR
+# OCP_CD_PIPELINE_DIR
+
+cd $MY_APP_DIR
+groovy -cp target/ocp-pipeline-0.0.4.jar  'jar:file:target/ocp-pipeline-0.0.4.jar!/example/build.groovy'
+
+groovy -cp $OCP_CD_PIPELINE_DIR/src/main/groovy/ $OCP_CD_PIPELINE_DIR/src/main/groovy/example/build.groovy --config=openshift/config.groovy
 ```
 
 # Build
