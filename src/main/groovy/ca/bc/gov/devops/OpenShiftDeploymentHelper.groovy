@@ -143,10 +143,11 @@ class OpenShiftDeploymentHelper extends OpenShiftHelper{
         while (deployments.size()>0) {
             Iterator<Map> iterator = deployments.iterator();
             while (iterator.hasNext()) {
-                Map object = iterator.next();
+                Map object = iterator.next()
                 Map dc = ocGet([object.kind, "${object.metadata.name}",  '-n', object.metadata.namespace])
-                println "${key(dc)} - desired:${dc?.status?.replicas}  ready:${dc?.status?.readyReplicas} available:${dc?.status?.availableReplicas}"
-                if ((dc?.status?.replicas == dc?.status?.readyReplicas &&  dc?.status?.replicas == dc?.status?.availableReplicas)) {
+                String dcSuccessStatus = "message:replication controller \"${object.metadata.name}-${dc?.status?.latestVersion}\" successfully rolled out"
+                println "${key(dc)} - desired:${dc?.status?.replicas} ready:${dc?.status?.readyReplicas} available:${dc?.status?.availableReplicas}"
+                if ((dc?.status?.replicas == dc?.status?.readyReplicas &&  dc?.status?.replicas == dc?.status?.availableReplicas && dc?.status?.conditions?.toString()?.contains(dcSuccessStatus))) {
                     iterator.remove()
                 }
             }
