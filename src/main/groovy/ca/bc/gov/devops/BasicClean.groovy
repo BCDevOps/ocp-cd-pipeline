@@ -59,7 +59,7 @@ abstract class BasicClean extends Script {
                     appVersion=deploymentConfig.app.build.version
                 }
 
-                println OpenShiftHelper.oc(['delete','builds,bc,dc,rc,svc,routes,secret,pvc,ServiceAccount,RoleBinding', '-l', "app=${appId},!image-stream.name", '-n', appNamespace]).out.toString().trim()
+                println OpenShiftHelper.oc(['delete','builds,bc,dc,rc,svc,routes,secret,pvc,ServiceAccount,RoleBinding', '-l', "app=${appId},!image-stream.name,!shared", '-n', appNamespace]).out.toString().trim()
                 Map ret = OpenShiftHelper.ocGet(['is', '-l', "app-name=${appName}", '-n', appNamespace])
                 for(Map imageStream in ret.items){
                     OpenShiftHelper.oc(['delete', 'istag', "${imageStream.metadata.name}:${appVersion}", '--ignore-not-found=true', '-n',appNamespace])

@@ -7,7 +7,7 @@ import ca.bc.gov.devops.OpenShiftBuildHelper
 
 @groovy.transform.SourceURI URI sourceURI
 
-//runScript(sourceURI)
+runScript(sourceURI)
 
 println 'Work in progress!!'
 println 'Done!!'
