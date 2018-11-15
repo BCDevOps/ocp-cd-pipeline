@@ -406,12 +406,12 @@ class OpenShiftBuildHelper extends OpenShiftHelper{
                     if ('Cancelled' == item.phase) continue
                     if ('Failed' == item.phase) continue
 
-                    //println "Processing  - ${OpenShiftHelper.guid(object)}  status:${item.phase} attempts:${item.attempts?:0}"
+                    println "Processing  - ${OpenShiftHelper.guid(object)}  status:${item.phase} attempts:${item.attempts?:0}"
                     pendingItems++
                     
                     boolean dependenciesMet=true
                     for (Map dependency:item.dependencies){
-                        //println "  > ${OpenShiftHelper.guid(dependency.object)} - status:${dependency.phase}"
+                        println "  > ${OpenShiftHelper.guid(dependency.object)} - status:${dependency.phase}"
                         if ('Complete' != dependency.phase){
                             dependenciesMet = false
                         }

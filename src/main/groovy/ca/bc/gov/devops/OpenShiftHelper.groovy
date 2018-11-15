@@ -66,7 +66,7 @@ class OpenShiftHelper{
             if (getVerboseLevel() >= 2) println template.file
 
             //Load Template
-            Map templateObject = new groovy.json.JsonSlurper().parseFile(new File(template.file), 'UTF-8')
+            Map templateObject = loadTemplateAsJson(template.file)
             //Normalize template and calculate hash
             templateObject.objects.each { Map it ->
                 it.metadata.labels=it.metadata.labels?:[:]
@@ -292,6 +292,26 @@ class OpenShiftHelper{
             throw new RuntimeException("oc returned an error code: ${ret}")
         }
         return ret
+    }
+
+    public static Map loadTemplateAsJson(String file){
+        List _args = ['oc', 'create', '-f', file, '--dry-run', '-o', 'json']
+
+        Map ret = _exec(_args, new StringBuffer(), new StringBuffer())
+
+        if (ret.status !=0){
+            throw new RuntimeException("oc returned an error code: ${ret}")
+        }
+
+        if (ret.out!=null && ret.out.length() > 0){
+
+            Map template= toJson(ret.out)
+            template.metadata.remove('namespace')
+            //println template
+            return template
+        }
+
+        return null
     }
 
     public static Map ocApply(List items, List args){
