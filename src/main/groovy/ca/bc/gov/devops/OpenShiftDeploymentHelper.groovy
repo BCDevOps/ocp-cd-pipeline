@@ -87,7 +87,7 @@ class OpenShiftDeploymentHelper extends OpenShiftHelper{
                         //workaround:Step 2: Re-import the image from itself
                         oc(['import-image',"--namespace=${object.metadata.namespace}", "${deploymageStreamTagName}-tmp2", "--from=${deployImageStream.status.dockerImageRepository}@${buildImageStreamTag.image.metadata.name}", '--confirm=true', '--insecure=true'])
                         //workaround:Step 3: Final tagging
-                        oc(['tag', "${object.metadata.namespace}@${buildImageStreamTag.image.metadata.name}", "${object.metadata.namespace}/${deploymageStreamTagName}", '-n', object.metadata.namespace])
+                        oc(['tag', "${object.metadata.name}@${buildImageStreamTag.image.metadata.name}", "${deploymageStreamTagName}", '-n', object.metadata.namespace])
                         //wokraround: Step 4: Cleanup temporary tags
                         oc(['tag',"--namespace=${object.metadata.namespace}", "${deploymageStreamTagName}-tmp1", '--delete=true'])
                         oc(['tag',"--namespace=${object.metadata.namespace}", "${deploymageStreamTagName}-tmp2", '--delete=true'])
