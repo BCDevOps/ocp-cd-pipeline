@@ -76,12 +76,24 @@ class OpenShiftDeploymentHelper extends OpenShiftHelper{
                     String deploymageStreamTagName = "${object.metadata.name}:${deploymentConfig.version}"
                     Map buildImageStreamTag = ocGet(['ImageStreamTag', "${buildImageStreamTagName}",'--ignore-not-found=true',  '-n', config.app.build.namespace])
                     Map deployImageStreamTag = ocGet(['ImageStreamTag', "${deploymageStreamTagName}",'--ignore-not-found=true',  '-n', object.metadata.namespace])
-                    if (deployImageStreamTag == null){
+
+                    if (deployImageStreamTag == null || (buildImageStreamTag!=null && buildImageStreamTag.image.metadata.name !=  deployImageStreamTag.image.metadata.name )){
                         //Creating ImageStreamTag
-                        oc(['tag', "${config.app.build.namespace}/${buildImageStreamTagName}", "${object.metadata.namespace}/${deploymageStreamTagName}", '-n', object.metadata.namespace])
-                    }else if (buildImageStreamTag!=null && buildImageStreamTag.image.metadata.name !=  deployImageStreamTag.image.metadata.name ){
-                        //Updating ImageStreamTag
-                        oc(['tag', "${config.app.build.namespace}/${buildImageStreamTagName}", "${object.metadata.namespace}/${deploymageStreamTagName}", '-n', object.metadata.namespace])
+                        //oc(['tag', "${config.app.build.namespace}/${buildImageStreamTagName}", "${object.metadata.namespace}/${deploymageStreamTagName}", '-n', object.metadata.namespace])
+                        //WORKAROUND: There is a problem/bug when tagging images accross projjects. The tagging will have a reference to the source project as opossed to import the image
+                        //workaround:step 1:Import the image to some temporary tag
+                        oc(['import-image',"--namespace=${object.metadata.namespace}", "${deploymageStreamTagName}-tmp1", "--from=${buildImageStreamTag.image.dockerImageReference}", '--confirm=true', '--insecure=true'])
+                        Map deployImageStream = ocGet(['ImageStream', "${object.metadata.name}",'--ignore-not-found=false',  '-n', object.metadata.namespace])
+                        //workaround:Step 2: Re-import the image from itself
+                        oc(['import-image',"--namespace=${object.metadata.namespace}", "${deploymageStreamTagName}-tmp2", "--from=${deployImageStream.status.dockerImageRepository}@${buildImageStreamTag.image.metadata.name}", '--confirm=true', '--insecure=true'])
+                        //workaround:Step 3: Final tagging
+                        oc(['tag', "${object.metadata.namespace}@${buildImageStreamTag.image.metadata.name}", "${object.metadata.namespace}/${deploymageStreamTagName}", '-n', object.metadata.namespace])
+                        //wokraround: Step 4: Cleanup temporary tags
+                        oc(['tag',"--namespace=${object.metadata.namespace}", "${deploymageStreamTagName}-tmp1", '--delete=true'])
+                        oc(['tag',"--namespace=${object.metadata.namespace}", "${deploymageStreamTagName}-tmp2", '--delete=true'])
+
+                        //Uncomment after removing 'oc tag' workaround
+                        //oc(['tag', "${config.app.build.namespace}/${buildImageStreamTagName}", "${object.metadata.namespace}/${deploymageStreamTagName}", '-n', object.metadata.namespace])
                     }
                     //println "${buildImageStreamTag}"
                     //oc(['cancel-build', "bc/${object.metadata.name}", '-n', object.metadata.namespace])
@@ -89,8 +101,8 @@ class OpenShiftDeploymentHelper extends OpenShiftHelper{
                     //The DeploymentConfig.spec.template.spec.containers[].image cannot be empty when updating
                     Map currentDeploymentConfig = ocGet(['DeploymentConfig', "${object.metadata.name}",'--ignore-not-found=true',  '-n', "${object.metadata.namespace}"])
 
-                    //Preserve current number of replicas
-                    if (currentDeploymentConfig){
+                    //Preserve current number of replicas, only if it is higher than the new one
+                    if (currentDeploymentConfig != null && currentDeploymentConfig.spec.replicas > object.spec.replicas){
                         object.spec.replicas=currentDeploymentConfig.spec.replicas
                     }
 
