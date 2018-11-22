@@ -95,21 +95,22 @@ export JAVACMD
 #echo "JAVACMD=${JAVACMD}"
 
 
-GROOVY_DOWNLOAD_URL='https://dl.bintray.com/groovy/maven/apache-groovy-binary-2.5.2.zip'
-GROOVY_DOWNLOAD_FILE="/tmp/~`basename "$GROOVY_DOWNLOAD_URL"`"
-
-GROOVY_DIR="/tmp/.groovy"
-if [ ! -d "${GROOVY_DIR}" ] ; then
-    if [ ! -f "${GROOVY_DOWNLOAD_FILE}" ] ; then
-        info "Downloading Groovy"
-        curl -sL -o "${GROOVY_DOWNLOAD_FILE}" "${GROOVY_DOWNLOAD_URL}"
+if [ ! -n "$GROOVYCMD" ] ; then
+    GROOVY_DOWNLOAD_URL='https://dl.bintray.com/groovy/maven/apache-groovy-binary-2.5.2.zip'
+    GROOVY_DOWNLOAD_FILE="/tmp/~`basename "$GROOVY_DOWNLOAD_URL"`"
+    GROOVY_DIR="/tmp/.groovy"
+    if [ ! -d "${GROOVY_DIR}" ] ; then
+        if [ ! -f "${GROOVY_DOWNLOAD_FILE}" ] ; then
+            info "Downloading Groovy"
+            curl -sL -o "${GROOVY_DOWNLOAD_FILE}" "${GROOVY_DOWNLOAD_URL}"
+        fi
+        info "Extracting Groovy"
+        mkdir -p "${GROOVY_DIR}"
+        unzip -oq "${GROOVY_DOWNLOAD_FILE}" -d "${GROOVY_DIR}"
     fi
-    info "Extracting Groovy"
-    mkdir -p "${GROOVY_DIR}"
-    unzip -oq "${GROOVY_DOWNLOAD_FILE}" -d "${GROOVY_DIR}"
+    #find "${GROOVY_DIR}/" -type f -name 'groovy' -perm +111
+    GROOVYCMD="${GROOVY_DIR}/groovy-2.5.2/bin/groovy"
 fi
-#find "${GROOVY_DIR}/" -type f -name 'groovy' -perm +111
-GROOVYCMD="${GROOVY_DIR}/groovy-2.5.2/bin/groovy"
 
 #echo "GROOVYCMD=${GROOVYCMD}"
 
