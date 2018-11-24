@@ -45,8 +45,8 @@ class OpenShiftHelper{
         object.metadata.labels['app-name'] = config.app.name
         if (!'true'.equalsIgnoreCase(object.metadata.labels['shared'])){
             if (config.app.git.uri.toLowerCase().startsWith('https://github.com/')) {
-                object.metadata.labels['github-owner'] = config.app.git.uri.tokenize('/')[2]
-                object.metadata.labels['github-repo'] = config.app.git.uri.tokenize('/')[3].reverse().substring(4).reverse()
+                object.metadata.labels['github-owner'] = config.app.git.uri.tokenize('/')[2].toLowerCase()
+                object.metadata.labels['github-repo'] = config.app.git.uri.tokenize('/')[3].reverse().substring(4).reverse().toLowerCase()
             }
 
             if (config.app?.git?.changeId){
