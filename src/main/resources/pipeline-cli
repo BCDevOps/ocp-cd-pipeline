@@ -111,8 +111,7 @@ if [ ! -n "$GROOVYCMD" ] ; then
     #find "${GROOVY_DIR}/" -type f -name 'groovy' -perm +111
     GROOVYCMD="${GROOVY_DIR}/groovy-2.5.2/bin/groovy"
 fi
-
-#echo "GROOVYCMD=${GROOVYCMD}"
+export GROOVYCMD
 
 OCP_PIPELINE_VERSION="${OCP_PIPELINE_VERSION:-0.0.5}"
 OCP_PIPELINE_DOWNLOAD_URL="https://github.com/BCDevOps/ocp-cd-pipeline/archive/v${OCP_PIPELINE_VERSION}.zip"
