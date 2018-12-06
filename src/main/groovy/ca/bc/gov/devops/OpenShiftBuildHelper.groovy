@@ -491,7 +491,7 @@ class OpenShiftBuildHelper extends OpenShiftHelper{
                             triggered=true
                             
                         }else {
-                            if (images.size() == 1){
+                            if (images.size() > 1){
                                 println "WARNING: More than 1 image with the same build hash (${buildHash}) found for ${object.metadata.name} - ${images.values().collect({ it.name }).join(',')}"
                             }
                             Map imageStreamImage = images.values()[0]
