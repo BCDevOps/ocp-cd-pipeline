@@ -137,7 +137,13 @@ echo "OCP_PIPELINE_DIR=${OCP_PIPELINE_DIR}"
 echo "OCP_PIPELINE_LIB_DIR=${OCP_PIPELINE_LIB_DIR}"
 
 PIPELINE_STAGE="$1"; shift
-
 PIPELINE_STAGE_SCRIPT="${OCP_PIPELINE_LIB_DIR}/example/${PIPELINE_STAGE}.groovy"
+
+#Allow scripts to be locally provided/overwritten
+if [ ! -z "$PIPELINE_LOCAL_STAGE_DIR" ]; then
+    if [ -f "${PIPELINE_LOCAL_STAGE_DIR}/${PIPELINE_STAGE}.groovy" ]; then
+        PIPELINE_STAGE_SCRIPT="${PIPELINE_LOCAL_STAGE_DIR}/${PIPELINE_STAGE}.groovy"
+    fi
+fi
 
 exec "${GROOVYCMD}" -cp "${OCP_PIPELINE_LIB_DIR}" "${PIPELINE_STAGE_SCRIPT}" "$@"
