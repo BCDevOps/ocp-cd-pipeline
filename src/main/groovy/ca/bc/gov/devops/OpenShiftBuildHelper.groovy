@@ -490,7 +490,10 @@ class OpenShiftBuildHelper extends OpenShiftHelper{
                             //sleepInSeconds=Math.max(sleepInSeconds, 5)
                             triggered=true
                             
-                        }else if (images.size() == 1){
+                        }else {
+                            if (images.size() > 1){
+                                println "WARNING: More than 1 image with the same build hash (${buildHash}) found for ${object.metadata.name} - ${images.values().collect({ it.name }).join(',')}"
+                            }
                             Map imageStreamImage = images.values()[0]
                             println "Reusing existing image (${imageStreamImage.name}) for ${key(object)}"
                             Map outputImageStreagTag = getImageStreamTag(outputTo)
@@ -498,10 +501,6 @@ class OpenShiftBuildHelper extends OpenShiftHelper{
                                 oc(['tag', '--source=imagestreamimage', "${outputTo.namespace?:config.app.build.namespace}/${outputTo.name.split(':')[0]}@${imageStreamImage.name}", "${outputTo.namespace?:config.app.build.namespace}/${outputTo.name}"])
                             }
                             item.phase = 'Complete'
-                            //Reuse Image from a previous build
-                        }else{
-                            //hell broke loose!
-                            throw new RuntimeException("More than 1 image with the same build hash found for ${object.metadata.name} - ${images.values().collect({ it.name }).join(',')}")
                         }
                     }else if ( 'Running' == item.phase  || 'Pending' == item.phase){
                         Map build = ocGet(["${item['build-name']}", '-n', object.metadata.namespace])

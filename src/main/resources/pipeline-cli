@@ -95,23 +95,23 @@ export JAVACMD
 #echo "JAVACMD=${JAVACMD}"
 
 
-GROOVY_DOWNLOAD_URL='https://dl.bintray.com/groovy/maven/apache-groovy-binary-2.5.2.zip'
-GROOVY_DOWNLOAD_FILE="/tmp/~`basename "$GROOVY_DOWNLOAD_URL"`"
-
-GROOVY_DIR="/tmp/.groovy"
-if [ ! -d "${GROOVY_DIR}" ] ; then
-    if [ ! -f "${GROOVY_DOWNLOAD_FILE}" ] ; then
-        info "Downloading Groovy"
-        curl -sL -o "${GROOVY_DOWNLOAD_FILE}" "${GROOVY_DOWNLOAD_URL}"
+if [ ! -n "$GROOVYCMD" ] ; then
+    GROOVY_DOWNLOAD_URL='https://dl.bintray.com/groovy/maven/apache-groovy-binary-2.5.2.zip'
+    GROOVY_DOWNLOAD_FILE="/tmp/~`basename "$GROOVY_DOWNLOAD_URL"`"
+    GROOVY_DIR="/tmp/.groovy"
+    if [ ! -d "${GROOVY_DIR}" ] ; then
+        if [ ! -f "${GROOVY_DOWNLOAD_FILE}" ] ; then
+            info "Downloading Groovy"
+            curl -sL -o "${GROOVY_DOWNLOAD_FILE}" "${GROOVY_DOWNLOAD_URL}"
+        fi
+        info "Extracting Groovy"
+        mkdir -p "${GROOVY_DIR}"
+        unzip -oq "${GROOVY_DOWNLOAD_FILE}" -d "${GROOVY_DIR}"
     fi
-    info "Extracting Groovy"
-    mkdir -p "${GROOVY_DIR}"
-    unzip -oq "${GROOVY_DOWNLOAD_FILE}" -d "${GROOVY_DIR}"
+    #find "${GROOVY_DIR}/" -type f -name 'groovy' -perm +111
+    GROOVYCMD="${GROOVY_DIR}/groovy-2.5.2/bin/groovy"
 fi
-#find "${GROOVY_DIR}/" -type f -name 'groovy' -perm +111
-GROOVYCMD="${GROOVY_DIR}/groovy-2.5.2/bin/groovy"
-
-#echo "GROOVYCMD=${GROOVYCMD}"
+export GROOVYCMD
 
 OCP_PIPELINE_VERSION="${OCP_PIPELINE_VERSION:-0.0.5}"
 OCP_PIPELINE_DOWNLOAD_URL="https://github.com/BCDevOps/ocp-cd-pipeline/archive/v${OCP_PIPELINE_VERSION}.zip"
@@ -137,7 +137,13 @@ echo "OCP_PIPELINE_DIR=${OCP_PIPELINE_DIR}"
 echo "OCP_PIPELINE_LIB_DIR=${OCP_PIPELINE_LIB_DIR}"
 
 PIPELINE_STAGE="$1"; shift
-
 PIPELINE_STAGE_SCRIPT="${OCP_PIPELINE_LIB_DIR}/example/${PIPELINE_STAGE}.groovy"
+
+#Allow scripts to be locally provided/overwritten
+if [ ! -z "$PIPELINE_LOCAL_STAGE_DIR" ]; then
+    if [ -f "${PIPELINE_LOCAL_STAGE_DIR}/${PIPELINE_STAGE}.groovy" ]; then
+        PIPELINE_STAGE_SCRIPT="${PIPELINE_LOCAL_STAGE_DIR}/${PIPELINE_STAGE}.groovy"
+    fi
+fi
 
 exec "${GROOVYCMD}" -cp "${OCP_PIPELINE_LIB_DIR}" "${PIPELINE_STAGE_SCRIPT}" "$@"

@@ -94,6 +94,8 @@ class OpenShiftDeploymentHelper extends OpenShiftHelper{
 
                         //Uncomment after removing 'oc tag' workaround
                         //oc(['tag', "${config.app.build.namespace}/${buildImageStreamTagName}", "${object.metadata.namespace}/${deploymageStreamTagName}", '-n', object.metadata.namespace])
+                        //tag itself usin environment as to hold a link to the "latest" image for each environment
+                        oc(['tag', "${buildImageStreamTagName}", "${object.metadata.name}:${deploymentConfig.env.name}", '-n', config.app.build.namespace])
                     }
                     //println "${buildImageStreamTag}"
                     //oc(['cancel-build', "bc/${object.metadata.name}", '-n', object.metadata.namespace])
