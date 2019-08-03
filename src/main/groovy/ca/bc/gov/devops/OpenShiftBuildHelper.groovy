@@ -533,8 +533,10 @@ class OpenShiftBuildHelper extends OpenShiftHelper{
                         if ('Waiting' == item.phase) continue
 
                         if (item['build-name']){
-                            if (!waitForPodsToComplete(['pods', '-l', "openshift.io/build.name=${item['build-name'].substring(6)}", "--namespace=${config.app.build.namespace}"])){
-                                throw new RuntimeException("One or more build(s) did NOT complete successfully")
+                            String shortBuildName = item['build-name'].tokenize('/')[1]
+
+                            if (!waitForPodsToComplete(['pods', '-l', "openshift.io/build.name=${shortBuildName}", "--namespace=${config.app.build.namespace}"])){
+                                throw new RuntimeException("'${shortBuildName}' did NOT complete successfully")
                             }
                             //only wait for 1 build/pod to complete at the time
                             break
