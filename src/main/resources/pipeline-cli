@@ -99,7 +99,7 @@ echo "after JAVACMD=${JAVACMD}"
 echo "before GROOVYCMD ............."
 echo "before GROOVYCMD=${GROOVYCMD}"
 if [ ! -n "$GROOVYCMD" ] ; then
-    GROOVY_DOWNLOAD_URL='https://dl.bintray.com/groovy/maven/apache-groovy-binary-2.5.2.zip'
+    GROOVY_DOWNLOAD_URL='https://dl.bintray.com/groovy/maven/apache-groovy-binary-2.5.7.zip'
     GROOVY_DOWNLOAD_FILE="/tmp/~`basename "$GROOVY_DOWNLOAD_URL"`"
     GROOVY_DIR="/tmp/.groovy"
     if [ ! -d "${GROOVY_DIR}" ] ; then
@@ -112,7 +112,7 @@ if [ ! -n "$GROOVYCMD" ] ; then
         unzip -oq "${GROOVY_DOWNLOAD_FILE}" -d "${GROOVY_DIR}"
     fi
     #find "${GROOVY_DIR}/" -type f -name 'groovy' -perm +111
-    GROOVYCMD="${GROOVY_DIR}/groovy-2.5.2/bin/groovy"
+    GROOVYCMD="${GROOVY_DIR}/groovy-2.5.7/bin/groovy"
 fi
 export GROOVYCMD
 echo "after GROOVYCMD=${GROOVYCMD}"
