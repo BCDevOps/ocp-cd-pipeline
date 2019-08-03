@@ -39,7 +39,7 @@ case "`uname`" in
     ;;
 esac
 
-
+echo "before JAVACMD ............."
 if [ ! -n "$JAVACMD" ] ; then
     if [ -n "$__JAVA_HOME" ] ; then
         if [ -x "$JAVA_HOME/jre/sh/java" ] ; then
@@ -94,7 +94,7 @@ fi
 export JAVACMD
 #echo "JAVACMD=${JAVACMD}"
 
-
+echo "before GROOVYCMD ............."
 if [ ! -n "$GROOVYCMD" ] ; then
     GROOVY_DOWNLOAD_URL='https://dl.bintray.com/groovy/maven/apache-groovy-binary-2.5.2.zip'
     GROOVY_DOWNLOAD_FILE="/tmp/~`basename "$GROOVY_DOWNLOAD_URL"`"
@@ -113,6 +113,7 @@ if [ ! -n "$GROOVYCMD" ] ; then
 fi
 export GROOVYCMD
 
+echo "before OCP_PIPELINE_VERSION ............."
 OCP_PIPELINE_VERSION="${OCP_PIPELINE_VERSION:-0.0.7}"
 OCP_PIPELINE_DOWNLOAD_URL="https://github.com/BainsConsultingInc/ocp-cd-pipeline/archive/v${OCP_PIPELINE_VERSION}.zip"
 OCP_PIPELINE_DOWNLOAD_FILE="/tmp/ocp-pipeline-${OCP_PIPELINE_VERSION}.zip"
@@ -145,5 +146,5 @@ if [ ! -z "$PIPELINE_LOCAL_STAGE_DIR" ]; then
         PIPELINE_STAGE_SCRIPT="${PIPELINE_LOCAL_STAGE_DIR}/${PIPELINE_STAGE}.groovy"
     fi
 fi
-
+echo "before - about to run GROOVYCMD ............."
 exec "${GROOVYCMD}" -cp "${OCP_PIPELINE_LIB_DIR}" "${PIPELINE_STAGE_SCRIPT}" "$@"
