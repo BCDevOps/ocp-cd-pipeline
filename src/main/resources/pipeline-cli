@@ -40,6 +40,7 @@ case "`uname`" in
 esac
 
 echo "before JAVACMD ............."
+echo "before JAVACMD=${JAVACMD}"
 if [ ! -n "$JAVACMD" ] ; then
     if [ -n "$__JAVA_HOME" ] ; then
         if [ -x "$JAVA_HOME/jre/sh/java" ] ; then
@@ -92,9 +93,11 @@ if [ ! -n "$JAVACMD" ] ; then
     fi
 fi
 export JAVACMD
+echo "after JAVACMD=${JAVACMD}"
 #echo "JAVACMD=${JAVACMD}"
 
 echo "before GROOVYCMD ............."
+echo "before GROOVYCMD=${GROOVYCMD}"
 if [ ! -n "$GROOVYCMD" ] ; then
     GROOVY_DOWNLOAD_URL='https://dl.bintray.com/groovy/maven/apache-groovy-binary-2.5.2.zip'
     GROOVY_DOWNLOAD_FILE="/tmp/~`basename "$GROOVY_DOWNLOAD_URL"`"
@@ -112,6 +115,7 @@ if [ ! -n "$GROOVYCMD" ] ; then
     GROOVYCMD="${GROOVY_DIR}/groovy-2.5.2/bin/groovy"
 fi
 export GROOVYCMD
+echo "after GROOVYCMD=${GROOVYCMD}"
 
 echo "before OCP_PIPELINE_VERSION ............."
 OCP_PIPELINE_VERSION="${OCP_PIPELINE_VERSION:-0.0.8}"
