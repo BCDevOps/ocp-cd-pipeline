@@ -146,5 +146,11 @@ if [ ! -z "$PIPELINE_LOCAL_STAGE_DIR" ]; then
         PIPELINE_STAGE_SCRIPT="${PIPELINE_LOCAL_STAGE_DIR}/${PIPELINE_STAGE}.groovy"
     fi
 fi
+
 echo "before - about to run GROOVYCMD ............."
+echo "GROOVYCMD=${GROOVYCMD}"
+echo "OCP_PIPELINE_LIB_DIR=${OCP_PIPELINE_LIB_DIR}"
+echo "PIPELINE_STAGE_SCRIPT=${PIPELINE_STAGE_SCRIPT}"
+echo "IsThisSomeSortOfScript=$@"
+
 exec "${GROOVYCMD}" -cp "${OCP_PIPELINE_LIB_DIR}" "${PIPELINE_STAGE_SCRIPT}" "$@"
