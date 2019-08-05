@@ -7,6 +7,9 @@ import ca.bc.gov.devops.OpenShiftBuildHelper
 
 @groovy.transform.SourceURI URI sourceURI
 
+println 'sourceURI:'
+println sourceURI
+
 runScript(sourceURI)
 
 println 'Done!!'
